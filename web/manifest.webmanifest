@@ -1,0 +1,10 @@
+{
+  "name": "Brain Games Arcade",
+  "short_name": "Brain Games",
+  "description": "2048, Mastermind, Hangman and Cows and Bulls with daily puzzles. Works offline.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#15112e",
+  "theme_color": "#1b1640",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

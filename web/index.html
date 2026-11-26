@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Brain Games Arcade</title>
+  <meta name="description" content="Four classic brain games in one place: 2048, Mastermind, Hangman and Cows and Bulls. Daily puzzles, a code-breaking coach and a streak tracker. No ads, no sign-up, works offline. Written in Python, running in your browser.">
+  <meta name="theme-color" content="#1b1640">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo">🧠</span>
+      <div>
+        <h1>Brain Games Arcade</h1>
+        <p class="tag">Screen time that trains your thinking. No ads, no sign-up, works offline.</p>
+      </div>
+    </div>
+    <div class="streak" id="streak" title="Days in a row with at least one daily puzzle finished">🔥 <b>0</b> day streak</div>
+  </header>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div>
+      <b id="loadText">Starting Python…</b>
+      <div class="small">The games are written in Python and run right here in your browser. First visit downloads about 12 MB; after that it works offline.</div>
+    </div>
+  </div>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Games">
+    <button role="tab" data-game="2048" aria-selected="true"><span>🔢</span>2048</button>
+    <button role="tab" data-game="mastermind"><span>🎯</span>Mastermind</button>
+    <button role="tab" data-game="hangman"><span>🔤</span>Hangman</button>
+    <button role="tab" data-game="cowsbulls"><span>🐮</span>Cows &amp; Bulls</button>
+    <button role="tab" data-game="stats"><span>📊</span>My stats</button>
+  </nav>
+
+  <main id="app" class="app" hidden>
+    <div class="modebar" id="modebar">
+      <div class="seg" role="group" aria-label="Mode">
+        <button data-mode="daily" class="on">📅 Daily puzzle</button>
+        <button data-mode="free">🎲 Free play</button>
+      </div>
+      <button class="ghost" id="newBtn">↻ New game</button>
+    </div>
+
+    <!-- 2048 -->
+    <section class="game" id="g-2048" hidden>
+      <div class="howto">Swipe or use the arrow keys. Equal numbers join together. Reach <b>2048</b>.</div>
+      <div class="scores">
+        <div class="pill"><small>Score</small><b id="s2048">0</b></div>
+        <div class="pill"><small>Best tile</small><b id="t2048">2</b></div>
+        <div class="pill"><small>Moves</small><b id="m2048">0</b></div>
+        <button class="ghost" id="undo2048">↶ Undo</button>
+      </div>
+      <div class="board" id="board" aria-label="2048 board" tabindex="0"></div>
+      <div class="arrows">
+        <button data-dir="up" aria-label="Up">▲</button>
+        <div><button data-dir="left" aria-label="Left">◀</button><button data-dir="down" aria-label="Down">▼</button><button data-dir="right" aria-label="Right">▶</button></div>
+      </div>
+    </section>
+
+    <!-- Mastermind -->
+    <section class="game" id="g-mastermind" hidden>
+      <div class="howto">Crack the hidden code of 4 colours in 10 tries. After each guess:
+        <span class="peg-key"><i class="k exact"></i> right colour, right place</span>
+        <span class="peg-key"><i class="k near"></i> right colour, wrong place</span>
+      </div>
+      <label class="check" id="mmRepeatsWrap"><input type="checkbox" id="mmRepeats" checked> Colours can repeat</label>
+      <div class="mm-rows" id="mmRows"></div>
+      <div class="mm-current">
+        <div class="slots" id="mmSlots"></div>
+        <button class="primary" id="mmCheck" disabled>Check</button>
+      </div>
+      <div class="palette" id="mmPalette"></div>
+      <div class="coach">
+        <span id="mmPossible"></span>
+        <button class="ghost" id="mmHint">💡 Coach: suggest a guess</button>
+      </div>
+    </section>
+
+    <!-- Hangman -->
+    <section class="game" id="g-hangman" hidden>
+      <div class="howto">Guess the word one letter at a time. Six wrong letters and the drawing is finished.</div>
+      <div class="hm-top">
+        <label>Topic <select id="hmCat"></select></label>
+        <span class="pill"><small>Topic</small><b id="hmCatShow"></b></span>
+      </div>
+      <div class="hm-wrap">
+        <svg class="gallows" id="gallows" viewBox="0 0 120 140" aria-hidden="true">
+          <path class="base" d="M10 132 H80 M30 132 V10 H80 V24" />
+          <circle class="part p1" cx="80" cy="34" r="10" />
+          <path class="part p2" d="M80 44 V82" />
+          <path class="part p3" d="M80 54 L64 70" />
+          <path class="part p4" d="M80 54 L96 70" />
+          <path class="part p5" d="M80 82 L66 104" />
+          <path class="part p6" d="M80 82 L94 104" />
+        </svg>
+        <div>
+          <div class="word" id="hmWord"></div>
+          <div class="lives" id="hmLives"></div>
+          <div class="clue" id="hmClue"></div>
+          <button class="ghost" id="hmClueBtn">💡 Show a clue (costs 1 life)</button>
+        </div>
+      </div>
+      <div class="keyboard" id="hmKeys"></div>
+    </section>
+
+    <!-- Cows and Bulls -->
+    <section class="game" id="g-cowsbulls" hidden>
+      <div class="howto">Guess the secret 4-digit number. All digits are different and it doesn't start with 0.
+        <b>🐂 Bull</b> = right digit, right place. <b>🐄 Cow</b> = right digit, wrong place. 10 tries.</div>
+      <div class="cb-entry">
+        <div class="cb-digits" id="cbDigits"></div>
+        <button class="primary" id="cbCheck" disabled>Check</button>
+      </div>
+      <div class="keypad" id="cbPad"></div>
+      <div class="coach">
+        <span id="cbPossible"></span>
+        <button class="ghost" id="cbHint">💡 Coach: suggest a guess</button>
+      </div>
+      <table class="cb-log"><thead><tr><th>#</th><th>Guess</th><th>🐂 Bulls</th><th>🐄 Cows</th></tr></thead><tbody id="cbLog"></tbody></table>
+    </section>
+
+    <!-- Stats -->
+    <section class="game" id="g-stats" hidden>
+      <div class="stat-cards" id="statCards"></div>
+      <h3>Today's daily puzzles</h3>
+      <div class="today" id="today"></div>
+      <h3>Per game</h3>
+      <table class="stat-table"><thead><tr><th>Game</th><th>Played</th><th>Won</th><th>Best</th></tr></thead><tbody id="statRows"></tbody></table>
+      <p class="small">Saved only on this device. <button class="link" id="resetStats">Reset my stats</button></p>
+    </section>
+
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+  </main>
+
+  <footer>
+    <p>🐍 All game logic is Python (<code>arcade.py</code>) running in your browser with <a href="https://pyodide.org">Pyodide</a>.
+      Built by combining four GeeksforGeeks Python projects: 2048, Mastermind, Hangman and Cows and Bulls.
+      <a href="https://github.com/Knarf24/brain-games-arcade">Source on GitHub</a>.</p>
+  </footer>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="dialog">
+      <div class="big" id="ovEmoji">🎉</div>
+      <h2 id="ovTitle"></h2>
+      <p id="ovText"></p>
+      <div class="ov-actions">
+        <button class="ghost" id="ovShare">📋 Copy result</button>
+        <button class="primary" id="ovNext">Play again</button>
+      </div>
+      <button class="link" id="ovClose">Close</button>
+    </div>
+  </div>
+
+  <script src="pyodide/pyodide.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

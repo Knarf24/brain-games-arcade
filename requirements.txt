@@ -1,0 +1,2 @@
+# Nothing to install: arcade.py and desktop.py use only the Python standard library.
+# The web page runs the same Python in your browser with Pyodide (included in web/pyodide/).
