@@ -22,11 +22,11 @@
     <div class="streak" id="streak" title="Days in a row with at least one daily puzzle finished">🔥 <b>0</b> day streak</div>
   </header>
 
-  <div id="loading" class="loading">
+  <div id="loading" class="loading slim" role="status">
     <div class="spinner"></div>
     <div>
-      <b id="loadText">Starting Python…</b>
-      <div class="small">The games are written in Python and run right here in your browser. First visit downloads about 12 MB; after that it works offline.</div>
+      <b id="loadText">Starting Python in the background…</b>
+      <div class="small">The games are written in Python and run right here in your browser. The first visit downloads Python once (about 12 MB); after that it is saved on this device and works offline.</div>
     </div>
   </div>
 
@@ -158,6 +158,7 @@
   </div>
 
   <script src="pyodide/pyodide.js"></script>
+  <script src="pyfast.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

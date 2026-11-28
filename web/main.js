@@ -33,26 +33,43 @@ function call(cmd) {
   return out;
 }
 
+// The page shows right away; the game rules (Python) start in the background and the board appears
+// as soon as they are ready (about half a second on a repeat visit).
 async function start() {
+  $("app").hidden = false;
+  const wanted = (location.hash || "").slice(1);
+  tab = GAMES.includes(wanted) || wanted === "stats" ? wanted : "2048";
+  previewTab(tab);
+  document.querySelectorAll("#tabs button").forEach((b) => { b.onclick = () => { tab = b.dataset.game; previewTab(tab); }; });
+  document.documentElement.dataset.ui = "ready";
   try {
-    py = await loadPyodide({ indexURL: new URL("pyodide/", location.href).href });
-    $("loadText").textContent = "Loading the games…";
-    const code = await fetch("arcade.py").then((r) => { if (!r.ok) throw new Error("arcade.py missing"); return r.text(); });
+    const [pyodide, code] = await Promise.all([
+      loadPyodideFast(),
+      fetch("arcade.py").then((r) => { if (!r.ok) throw new Error("arcade.py missing"); return r.text(); }),
+    ]);
+    py = pyodide;
     py.FS.writeFile("/home/pyodide/arcade.py", code);
     py.runPython("from arcade import call");
   } catch (e) {
+    $("loading").classList.add("error");
     $("loadText").textContent = "Couldn't start Python: " + e.message + ". Please reload.";
+    document.querySelector("#loading .spinner")?.remove();
     return;
   }
   $("loading").hidden = true;
-  $("app").hidden = false;
   buildStatic();
-  const wanted = (location.hash || "").slice(1);
-  showTab(GAMES.includes(wanted) || wanted === "stats" ? wanted : "2048");
+  showTab(tab);
   updateStreak();
-  if ("serviceWorker" in navigator && location.protocol === "https:") {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  }
+  document.documentElement.dataset.py = "ready";
+  // Keeps Python saved on this device so the next visit starts without downloading it (see sw.js).
+  if ("serviceWorker" in navigator && isSecureContext) navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+// Switches the visible game before Python is ready (no game state yet).
+function previewTab(name) {
+  document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.game === name)));
+  document.querySelectorAll(".game").forEach((s) => { s.hidden = s.id !== "g-" + name; });
+  $("modebar").hidden = name === "stats";
 }
 
 // ------------------------------------------------------------ tabs, modes, messages
