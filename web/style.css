@@ -223,3 +223,12 @@ h3 { margin: 20px 0 8px; font-size: 16px; }
 
 footer { max-width: 760px; margin: 0 auto; padding: 8px 16px 32px; font-size: 13px; color: var(--muted); }
 [hidden] { display: none !important; }
+
+/* Python starts in the background: a small note in the corner instead of a card that blocks the page. */
+.loading.slim { position: fixed; left: 14px; bottom: 14px; z-index: 60; margin: 0; padding: 8px 14px; gap: 10px;
+  width: auto; max-width: min(420px, calc(100% - 28px)); border-radius: 999px; font-size: 0.85rem;
+  background: var(--card); border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18); }
+.loading.slim[hidden] { display: none; }
+.loading.slim .small { display: none; }
+.loading.slim .spinner { width: 16px; height: 16px; border-width: 2px; }
+.loading.slim.error, .loading.slim.failed { border-radius: 12px; }

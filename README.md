@@ -38,7 +38,7 @@ Built by combining four GeeksforGeeks Python projects:
 | File | What it is |
 |---|---|
 | `arcade.py` | All the game rules, scoring, daily puzzles, coach and stats (Python, standard library only) |
-| `web/` | The page: `index.html`, `main.js` (drawing, taps, swipes, saving stats), `style.css`, `sw.js` (offline), and Pyodide in `web/pyodide/` |
+| `web/` | The page: `index.html`, `main.js` (drawing, taps, swipes, saving stats), `style.css`, `sw.js` (offline and saved Python), `pyfast.js` (quick Python start), and Pyodide in `web/pyodide/` |
 | `desktop.py` | Play the same games in a terminal: `python desktop.py` (add `--daily` for today's puzzles) |
 | `tests/test_arcade.py` | Tests, including the coach solving 15 random codes of each game: `python tests/test_arcade.py` |
 | `build_site.sh`, `.github/workflows/pages.yml` | Builds `_site/` and publishes it to GitHub Pages |
@@ -53,6 +53,21 @@ Built by combining four GeeksforGeeks Python projects:
 ## Privacy
 
 Nothing leaves your device. Stats are kept in your browser's local storage, and "Reset my stats" deletes them.
+
+## Fast loading
+
+The page shows straight away and Python starts in the background, so nothing waits on a
+"Starting Python" screen. Anything that needs Python simply waits for it if you are quicker.
+
+- **Saved on the device** (`web/sw.js`): after the first visit, Python (Pyodide) and its packages are kept in
+  the browser, so a refresh or a later visit doesn't download them again. Every app on the same site shares
+  that one saved copy. The app's own files are still fetched fresh, so updates show up right away.
+- **Quick restart** (`web/pyfast.js`): the first visit also saves a snapshot of a freshly started Python.
+  Later visits restore it instead of starting Python from scratch (about 1.2 s down to 0.3 s on a laptop).
+  If the snapshot can't be used (for example after a Pyodide upgrade), Python starts normally and a new one
+  is saved.
+- `build_site.sh` writes the Pyodide version into `sw.js`, so upgrading `web/pyodide/` needs no other change.
+
 
 ## License
 
